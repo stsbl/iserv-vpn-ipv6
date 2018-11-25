@@ -1,3 +1,9 @@
+stsbl-iserv-vpn-ipv6 (18.11.25-5) experimental; urgency=medium
+
+  * Added firewall rules
+
+ -- Felix Jacobi <felix.jacobi@stsbl.de>  Sun, 25 Nov 2018 22:38:44 +0100
+
 stsbl-iserv-vpn-ipv6 (18.11.25-4) experimental; urgency=medium
 
   * Fixed missing revision
