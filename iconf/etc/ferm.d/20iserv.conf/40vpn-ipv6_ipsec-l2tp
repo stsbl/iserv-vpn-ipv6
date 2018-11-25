@@ -1,0 +1,14 @@
+@def $VpnIpv6Ranges = `bash -c '. /usr/lib/iserv/cfg; echo "$VpnL2tpGlobalIpv6Range $VpnL2tpIpv6Range"'`;
+domain (ip6) {
+  table filter {
+    chain input_world {
+      proto udp dport 1701 mod policy dir in pol ipsec ACCEPT;
+      interface ppp+ saddr @ipfilter($VpnIpv6Ranges) jump input_lan;
+    }
+    chain forward_first {
+      interface ppp+ saddr @ipfilter($VpnIpv6Ranges) ACCEPT;
+      outerface ppp+ daddr @ipfilter($VpnIpv6Ranges) mod state state (ESTABLISHED RELATED) ACCEPT;
+    }
+  }
+}
+
