@@ -1,0 +1,16 @@
+Source: stsbl-iserv-vpn-ipv6
+Section: misc
+Priority: extra
+Maintainer: Stadtteilschule Blankenese <repository@stsbl.de>
+Build-Depends: debhelper (>= 10)
+Build-Depends-Indep: iserv3-dev
+Standards-Version: 3.9.8
+Homepage: <insert the upstream URL, if relevant>
+
+Package: stsbl-iserv-vpn-ipv6
+Architecture: all
+Depends: ${misc:Depends},
+  ${perl:Depends},
+  iserv-portal,
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
