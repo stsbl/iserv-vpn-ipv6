@@ -1,3 +1,9 @@
+stsbl-iserv-vpn-ipv6 (18.11.25-4) experimental; urgency=medium
+
+  * Fixed missing revision
+
+ -- Felix Jacobi <felix.jacobi@stsbl.de>  Sun, 25 Nov 2018 22:02:47 +0100
+
 stsbl-iserv-vpn-ipv6 (18.11.25-3) experimental; urgency=medium
 
   * Fixed swp file
