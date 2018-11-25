@@ -1,5 +1,5 @@
-stsbl-iserv-vpn-ipv6 (18.11.25-1) unstable; urgency=medium
+stsbl-iserv-vpn-ipv6 (18.11.25-1) experimental; urgency=medium
 
-  * Initial Release.
+  * Initial release
 
- -- Stadtteilschule Blankenese <repository@stsbl.de>  Sun, 25 Nov 2018 20:56:45 +0100
+ -- Felix Jacobi <felix.jacobi@stsbl.de>  Sun, 25 Nov 2018 21:51:38 +0100
