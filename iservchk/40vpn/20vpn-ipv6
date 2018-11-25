@@ -1,0 +1,3 @@
+Mkdir 0755 root:root /var/lib/iserv/vpn-ipv6
+Mkdir 0755 root:root /var/lib/iserv/vpn-ipv6/radvd
+

@@ -1,0 +1,3 @@
+Check /etc/ppp/ipv6-{down,up}.d/iserv-vpn-ipv6
+ChPerm 0755 root:root /etc/ppp/ipv6-{down,up}.d/iserv-vpn-ipv6
+

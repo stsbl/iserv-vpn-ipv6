@@ -1,0 +1,3 @@
+/usr/lib/iserv/vpn-ipv6_ppp "$1" up
+exit 0
+

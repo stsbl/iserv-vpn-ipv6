@@ -1,0 +1,7 @@
+Test "generate ipv6 range for l2tp vpn"
+  ! [ -z "$VpnL2tpIpv6Range" ]
+  ---
+  Range="$(generate-ipv6-lula)"
+  store_cfg /etc/iserv/config VpnL2tpIpv6Range "$Range"
+  /usr/lib/iserv/newconf
+

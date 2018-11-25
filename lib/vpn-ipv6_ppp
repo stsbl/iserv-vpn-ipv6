@@ -1,0 +1,91 @@
+#!/bin/bash -e
+
+exec &>> /var/log/iserv-vpn-ipv6-ppp.log
+
+. /usr/lib/iserv/cfg
+
+gen_radvd_conf()
+{
+  cat <<EOT
+interface $1 {
+  AdvSendAdvert on;
+  AdvDefaultLifetime 0;
+
+  MinRtrAdvInterval 3;
+  MaxRtrAdvInterval 10;
+
+$(for net in ${LAN[@]}
+    do
+      [[ $net =~ : ]] || continue
+      echo "  route $net {"
+      echo "  };"
+    done)
+
+  prefix $2 {
+    AdvOnLink on;
+    AdvAutonomous on;
+    AdvRouterAddr off;
+  };
+
+$(if ! [ -z "$3" ]
+    then
+      echo "  prefix $3 {"
+      echo "    AdvOnLink on;"
+      echo "    AdvAutonomous on;"
+      echo "    AdvRouterAddr off;"
+      echo "  };"
+      echo
+    fi)
+
+$(for ip in $(netquery6 -gul ip)
+    do
+      echo "  RDNSS $ip {"
+      echo "    AdvRDNSSLifetime 10;"
+      echo "  };"
+      echo
+    done)
+};
+EOT
+
+}
+
+if [ -z "$1" ] || [ -z "$2" ]
+then
+  echo "Usage: $0 device action" >&2
+  exit 1
+fi
+
+Device="$1"
+Action="$2"
+
+DirVar="/var/lib/iserv/vpn-ipv6/radvd"
+RadvdConf="$DirVar/radvd.$Device.conf"
+
+case "$Action" in
+  "up")
+    GLOBALNETRANGE="$(/usr/lib/iserv/vpn-ipv6_ppp_ip -g "$Device")"
+    NETRANGE="$(/usr/lib/iserv/vpn-ipv6_ppp_ip "$Device")"
+    PREFIX="$(echo $NETRANGE | sed -E 's#::/64$##g')"
+    ip addr add "$PREFIX::1/64" dev "$Device"
+
+    if ! [ -z "$GLOBALNETRANGE" ]
+    then
+      GLOBALPREFIX="$(echo $GLOBALNETRANGE | sed -E 's#::/64$##g')"
+      ip addr add "$GLOBALPREFIX::1/64" dev "$Device"
+    fi
+
+    gen_radvd_conf "$Device" "$NETRANGE" "$GLOBALNETRANGE" > "$RadvdConf"
+
+    systemctl -q start radvd-ppp@"$Device"
+  ;;
+  "down")
+    rm -f "$RadvdConf"
+
+    systemctl -q stop radvd-ppp@"$Device"
+  ;;
+  *)
+    echo "Unknown action $Action!" >&2
+    exit 1
+  ;;
+esac
+

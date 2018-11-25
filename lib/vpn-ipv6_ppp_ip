@@ -1,0 +1,118 @@
+#!/usr/bin/perl -CSDAL
+use warnings;
+use strict;
+
+use Bytes::Random::Secure;
+use Fcntl qw(:flock);
+use Getopt::Long;
+use JSON;
+use Net::IP;
+use File::Slurp::Unicode;
+
+use IServ::Conf;
+
+my $rnd = Bytes::Random::Secure->new(NonBlocking => 1);
+
+sub gen_net($$)
+{
+  my ($prefix, $len) = @_;
+  my $net = $prefix;
+  $net .= $rnd->string_from("01", $len);
+
+  join(":", unpack("(A4)*", unpack("H*", pack("B*", $net)))) . "::/64";
+}
+
+my %opt;
+GetOptions(\%opt,
+  "global|g",
+);
+
+my $data_file = $opt{global} ? "/var/lib/iserv/vpn-ipv6/global-ppp-ips.json" :
+    "/var/lib/iserv/vpn-ipv6/ppp-ips.json";
+my $prefix_conf = $opt{global} ? $conf->{VpnL2tpGlobalIpv6Range} : $conf->{VpnL2tpIpv6Range};
+
+if (not $prefix_conf)
+{
+  exit 0;
+}
+
+open( my $lock_handle, '>>', $data_file);
+flock($lock_handle, LOCK_EX) or die "Cannot lock $data_file - $!\n";
+
+my $data_ref = decode_json(read_file($data_file) or '{}');
+my %data = %$data_ref;
+my $found = 0;
+
+my $prefix = new Net::IP($prefix_conf, 6);
+my $prefix_length = $prefix->prefixlen();
+my $net_bit_length = 128 - $prefix_length;
+my $subnet_length = $net_bit_length - 64;
+my $prefix_bits = substr($prefix->binip(), 0, -$net_bit_length);
+
+my $interface = $ARGV[0];
+die "no interface name given\n" if not length $interface;
+
+$data{$interface} = []
+  if (not exists $data{$interface});
+
+for my $check (@{$data{$interface}})
+{
+  my $check_ip = new Net::IP($check);
+  if ($prefix->overlaps($check_ip))
+  {
+    $found = $check;
+    last;
+  }
+}
+
+if (not $found)
+{
+  # we need to collect all ips from network
+  my %used_ips;
+
+  for my $check_host (keys %data)
+  {
+    for my $check (@{$data{$check_host}})
+    {
+      my $check_ip = new Net::IP($check);
+      if ($prefix->overlaps($check_ip))
+      {
+        if (exists $used_ips{$check})
+        {
+          die "ip given twice: ". $check->ip() . "\n";
+        }
+        $used_ips{$check} = 1;
+      }
+    }
+  }
+
+  if (not keys %used_ips >= $subnet_length**2)
+  {
+    my $ip = new Net::IP(gen_net($prefix_bits, $subnet_length));
+    do {
+        if (not exists $used_ips{$ip->print()})
+        {
+          $found = $ip->print();
+          push @{$data{$interface}}, $found;
+        }
+    } while (not $found);
+
+    if ($found)
+    {
+      open my $fh, ">", $data_file;
+      print $fh encode_json(\%data);
+      close $fh;
+    }
+  }
+}
+
+flock($lock_handle, LOCK_UN) or die "Cannot unlock $data_file - $!\n";
+
+if ($found)
+{
+  print "$found\n";
+}
+else
+{
+  die "did not find a new range in ".$prefix->print()."!\n";
+}

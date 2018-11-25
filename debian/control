@@ -1,16 +1,20 @@
 Source: stsbl-iserv-vpn-ipv6
 Section: misc
-Priority: extra
+Priority: optional
 Maintainer: Stadtteilschule Blankenese <repository@stsbl.de>
 Build-Depends: debhelper (>= 10)
 Build-Depends-Indep: iserv3-dev
-Standards-Version: 3.9.8
-Homepage: <insert the upstream URL, if relevant>
+Standards-Version: 4.2.1
 
 Package: stsbl-iserv-vpn-ipv6
 Architecture: all
 Depends: ${misc:Depends},
   ${perl:Depends},
   iserv-portal,
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+  iserv-vpn,
+  libfile-slurp-unicode-perl,
+  libjson-perl,
+  stsbl-iserv-ipv6-support,
+  stsbl-iserv-server-radvd,
+Description: IPv6-VPN-Unterstützung für IServ
+ Ergänzt das IServ-VPN-Modul um IPv6-Tunneling für L2TP/IPSec.
