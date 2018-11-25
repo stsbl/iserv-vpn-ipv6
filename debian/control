@@ -16,5 +16,6 @@ Depends: ${misc:Depends},
   libjson-perl,
   stsbl-iserv-ipv6-support,
   stsbl-iserv-server-radvd,
+Xb-Private-IServ-Revision: ${iserv:Revision}
 Description: IPv6-VPN-Unterstützung für IServ
  Ergänzt das IServ-VPN-Modul um IPv6-Tunneling für L2TP/IPSec.
