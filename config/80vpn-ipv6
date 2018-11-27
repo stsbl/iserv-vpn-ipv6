@@ -6,6 +6,6 @@ group       Module: VPN
 
 VpnL2tpGlobalIpv6Range:
 name        Global IPv6 range for L2TP VPN clients
-description Optional IPv6 range (in CIDR notation) that is used to assign IP addresses to clients connecting using the L2TP VPN. The network part should have at least a length of 62, as one 64 subnet is reserved per ppp connection. The global IP section can currently only assigned statically.
+description Optional IPv6 range (in CIDR notation) that is used to assign IP addresses to clients connecting using the L2TP VPN. The network part should have at least a length of 62, as one 64 subnet is reserved per ppp connection. The global IP section can currently only be assigned statically.
 type        string
 group       Module: VPN
