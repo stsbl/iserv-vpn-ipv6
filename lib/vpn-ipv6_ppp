@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 
 exec &>> /var/log/iserv-vpn-ipv6-ppp.log
 
@@ -17,6 +18,8 @@ interface $1 {
 $(for net in ${LAN[@]}
     do
       [[ $net =~ : ]] || continue
+      [[ $net =~ /[0-9]{1,3} ]] || net="$net/128"
+
       echo "  route $net {"
       echo "  };"
     done)
