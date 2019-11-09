@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Stadtteilschule Blankenese <repository@stsbl.de>
 Build-Depends: debhelper (>= 10)
 Build-Depends-Indep: iserv3-dev
-Standards-Version: 4.2.1
+Standards-Version: 4.4.1
 
 Package: stsbl-iserv-vpn-ipv6
 Architecture: all
@@ -19,3 +19,4 @@ Depends: ${misc:Depends},
 Xb-Private-IServ-Revision: ${iserv:Revision}
 Description: IPv6-VPN-Unterstützung für IServ
  Ergänzt das IServ-VPN-Modul um IPv6-Tunneling für L2TP/IPSec.
+Tag: suite::iserv

@@ -52,6 +52,13 @@ EOT
 
 }
 
+# Reload main radvd process
+reload_radvd()
+{
+  iconf repair -q /etc/radvd.conf
+  systemctl -q reload radvd.service
+}
+
 if [ -z "$1" ] || [ -z "$2" ]
 then
   echo "Usage: $0 device action" >&2
@@ -71,7 +78,7 @@ case "$Action" in
     PREFIX="$(echo $NETRANGE | sed -E 's#::/64$##g')"
     ip addr add "$PREFIX::1/64" dev "$Device"
 
-    if ! [ -z "$GLOBALNETRANGE" ]
+    if [ -n "$GLOBALNETRANGE" ]
     then
       GLOBALPREFIX="$(echo $GLOBALNETRANGE | sed -E 's#::/64$##g')"
       ip addr add "$GLOBALPREFIX::1/64" dev "$Device"
@@ -79,12 +86,14 @@ case "$Action" in
 
     gen_radvd_conf "$Device" "$NETRANGE" "$GLOBALNETRANGE" > "$RadvdConf"
 
-    systemctl -q start radvd-ppp@"$Device"
+    systemctl -q start radvd-ppp@"$Device".service
+    reload_radvd
   ;;
   "down")
     rm -f "$RadvdConf"
 
-    systemctl -q stop radvd-ppp@"$Device"
+    systemctl -q stop radvd-ppp@"$Device".service
+    reload_radvd
   ;;
   *)
     echo "Unknown action $Action!" >&2
