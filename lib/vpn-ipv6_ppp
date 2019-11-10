@@ -24,6 +24,13 @@ $(for net in ${LAN[@]}
       echo "  };"
     done)
 
+  # We need to advertise this route as Windows is a piece of sh*t which fails
+  # with "Transmission error: Erro code 1231." if no default route is present
+  # on PPP device, AdvRouterAddr did not help here. Sadly this prevents the VPN
+  # from controlling which traffic is routed trough the VPN (split tunneling).
+  route ::/0 {
+  };
+
   prefix $2 {
     AdvOnLink on;
     AdvAutonomous on;
