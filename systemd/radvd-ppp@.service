@@ -12,7 +12,7 @@ Type=forking
 ExecStartPre=/usr/sbin/radvd --logmethod stderr_clean --configtest -C /var/lib/iserv/vpn-ipv6/radvd/radvd.%i.conf
 ExecStartPre=/bin/systemd-tmpfiles radvd-ppp.conf --create
 ExecStart=/usr/sbin/radvd --logmethod stderr_clean -C /var/lib/iserv/vpn-ipv6/radvd/radvd.%i.conf -p /run/radvd.ppp/radvd.%i.pid
-ExecReload=/usr/sbin/radvd --logmethod stderr_clean --configtest -C /var/lib/iserv/vpn-ipv6/radvd/radvd.%i.conf && /bin/kill -HUP $MAINPID
+ExecReload=/bin/sh -c '/usr/sbin/radvd --logmethod stderr_clean --configtest -C /var/lib/iserv/vpn-ipv6/radvd/radvd.%i.conf && /bin/kill -HUP "$1"' -- $MAINPID
 PIDFile=/run/radvd.ppp/radvd.%i.pid
 
 # Set the CPU scheduling policy to idle which is for running very low priority background jobs
