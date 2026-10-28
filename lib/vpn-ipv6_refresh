@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+. /usr/lib/iserv/cfg
+. /usr/lib/iserv/vpn-ipv6_radvd
+
+for config in /var/lib/iserv/vpn-ipv6/radvd/radvd.*.conf; do
+  [ -f "$config" ] || continue
+  device=${config##*/radvd.}
+  device=${device%.conf}
+  [[ "$device" =~ ^[a-zA-Z0-9_.:-]+$ ]] || continue
+  ip link show dev "$device" >/dev/null 2>&1 || continue
+  systemctl is-active --quiet "radvd-ppp@$device.service" || continue
+  # Keep the prefixes actually assigned to this live session. Calling the PPP
+  # up action would add addresses again and may allocate a different prefix.
+  mapfile -t prefixes < <(awk '$1 == "prefix" { print $2 }' "$config")
+  [ "${#prefixes[@]}" -gt 0 ] || continue
+  temporary=$(mktemp "${config}.XXXXXX")
+  trap 'rm -f "$temporary"' EXIT
+  gen_radvd_conf "$device" "${prefixes[0]}" "${prefixes[1]:-}" > "$temporary"
+  radvd --configtest -C "$temporary"
+  if ! cmp -s "$temporary" "$config"; then
+    chmod --reference="$config" "$temporary"
+    chown --reference="$config" "$temporary"
+    mv "$temporary" "$config"
+  fi
+  rm -f "$temporary"
+  trap - EXIT
+done

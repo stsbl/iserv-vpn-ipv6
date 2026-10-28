@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+. /usr/lib/iserv/ipv6chdetectd-functions
+if [ "$IPV6CHDETECTD_PHASE" = prepare ]; then
+  /usr/lib/iserv/vpn-ipv6_refresh
+  exit 0
+fi
+for config in /var/lib/iserv/vpn-ipv6/radvd/radvd.*.conf; do
+  [ -f "$config" ] || continue
+  device=${config##*/radvd.}
+  device=${device%.conf}
+  [[ "$device" =~ ^[a-zA-Z0-9_.:-]+$ ]] || continue
+  service="radvd-ppp@$device.service"
+  ipv6_watch "$service" reload "$config"
+  ipv6_validate "$service" radvd --configtest -C "$config"
+done

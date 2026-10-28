@@ -8,7 +8,7 @@ Homepage: https://it.stsbl.de/
 
 Package: stsbl-iserv-vpn-ipv6
 Architecture: all
-Depends: iserv-portal,
+Depends: ipv6chdetectd (>= 26.10.28.1), iserv-portal,
          iserv-vpn,
          libfile-slurp-unicode-perl,
          libjson-perl,
